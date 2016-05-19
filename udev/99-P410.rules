@@ -1,0 +1,3 @@
+# P410 PulsOn
+SUBSYSTEM=="tty", ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="1027", ATTRS{idProduct}=="0003", ATTRS{product}=="P400 Radio", MODE="666"
+

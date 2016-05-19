@@ -1,0 +1,3 @@
+# P440 PulsOn
+SUBSYSTEM=="tty", ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="1027", ATTRS{idProduct}=="0005", ATTRS{product}=="Time Domain P440", MODE="666"
+

@@ -1,0 +1,64 @@
+#
+# Detailed explanation of values found in:
+#   doc/320-0313D RangeNet API Specification.pdf
+#
+-
+    type: 1                 # 0-invalid, 1-range slot, 2-requester out
+    number: 0               # slot position
+    flags: 0                # Conflicting documenation... leave set 0
+    integration_index: 5    # 7-default, [4-9] valid
+    antenna_mode: 0         # 0-A, 1-B, 2-TXA/RXB, 3-TXB/RXA
+    channel: 4              # 0-default, [0-10] NOTE: Can't share in same slot
+    requester_id: 100       # node ID of the requester
+    responder_id: 101       # node ID of the responder
+    duration: 0             # duration of slot uS; 0-default
+-
+    type: 1
+    number: 1
+    flags: 0
+    integration_index: 5
+    antenna_mode: 0
+    channel: 4
+    requester_id: 102
+    responder_id: 101
+    duration: 0
+-
+    type: 1
+    number: 2
+    flags: 0
+    integration_index: 5
+    antenna_mode: 0
+    channel: 4
+    requester_id: 100
+    responder_id: 102
+    duration: 0
+-
+    type: 1
+    number: 3
+    flags: 0
+    integration_index: 5
+    antenna_mode: 0
+    channel: 4
+    requester_id: 103
+    responder_id: 102
+    duration: 0
+-
+    type: 1
+    number: 4
+    flags: 0
+    integration_index: 5
+    antenna_mode: 0
+    channel: 4
+    requester_id: 100
+    responder_id: 103
+    duration: 0
+-
+    type: 1
+    number: 5
+    flags: 0
+    integration_index: 5
+    antenna_mode: 0
+    channel: 4
+    requester_id: 101
+    responder_id: 103
+    duration: 0

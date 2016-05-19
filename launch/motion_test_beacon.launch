@@ -1,0 +1,9 @@
+<launch>
+
+    <node pkg="pulson_ros" name="node_103" type="tdma_beacon">
+        <param name="pulse_integration_index" value="5" />
+        <param name="node_id" value="103" />
+        <param name="slot_map_file" value="$(find pulson_ros)/config/motion_tests.yaml" />
+    </node>
+
+</launch>
