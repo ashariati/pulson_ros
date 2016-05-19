@@ -112,7 +112,7 @@ catkin_package(
     INCLUDE_DIRS include
     # LIBRARIES pulson_ros
     CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs cmake_modules message_runtime
-    DEPENDS system_lib Eigen
+    DEPENDS Eigen yaml-cpp
     )
 
 ###########
