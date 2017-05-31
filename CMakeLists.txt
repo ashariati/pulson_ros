@@ -17,7 +17,6 @@ find_package(catkin REQUIRED COMPONENTS
 # find_package(Boost REQUIRED COMPONENTS system)
 
 find_package(Eigen3 REQUIRED)
-find_package(yaml-cpp REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -185,13 +184,13 @@ target_link_libraries(aloha_node
 
 target_link_libraries(tdma_node
     TDMA
-    ${YAML_CPP_LIBRARIES}
+    yaml-cpp
     ${catkin_LIBRARIES}
     )
 
 target_link_libraries(tdma_beacon
     TDMA
-    ${YAML_CPP_LIBRARIES}
+    yaml-cpp
     ${catkin_LIBRARIES}
     )
 
