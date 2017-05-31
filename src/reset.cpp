@@ -21,16 +21,30 @@ int main(int argc, char **argv)
     // parameters
     int node_id;
     std::string dev_path;
+    rcmIfType rcmIf;
 
     nh.param("node_id", node_id, 100);
-    nh.param("dev_path", dev_path, std::string("/dev/ttyACM0"));
+
+    if (nh.getParam("ip_address", dev_path))
+    {
+       rcmIf = rcmIfIp;
+    }
+    else if (nh.getParam("serial_dev", dev_path))
+    {
+      rcmIf = rcmIfSerial;
+    }
+    else
+    {
+      nh.param("dev_path", dev_path, std::string("/dev/ttyACM0"));
+      rcmIf = rcmIfUsb;
+    }
 
     int r;
 
     // initialize interface
-    r = rcmIfInit(rcmIfUsb, (char*) dev_path.c_str());
+    r = rcmIfInit(rcmIf, (char*) dev_path.c_str());
     error_check(r, "Initialization Failed");
-    
+
     // put in idle mode during configuration
     r = rcmSleepModeSet(RCM_SLEEP_MODE_IDLE);
     error_check(r, "Time out waiting for sleep mode set");
@@ -75,7 +89,7 @@ int main(int argc, char **argv)
     // cleanup
     rcmIfFlush();
     rcmIfClose();
-    
+
 }
 
 
@@ -105,7 +119,7 @@ void print_status(rcmMsg_GetStatusInfoConfirm *statusInfo)
 
 }
 
-void print_configuration(rcmConfiguration *config) 
+void print_configuration(rcmConfiguration *config)
 {
     char buf[1024];
     sprintf(buf, "\n\tConfiguration:\n");
@@ -130,4 +144,3 @@ void error_check(int r, char const *msg)
     }
 
 }
-

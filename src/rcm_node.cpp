@@ -8,7 +8,7 @@
 #include <pulson_ros/RangeArray.h>
 #include <pulson_ros/RangeMeasurement.h>
 
-void init(std::string dev_path);
+void init(rcmIfType rcmIf, std::string dev_path);
 void print_status(rcmMsg_GetStatusInfoConfirm *statusInfo);
 void print_configuration(rcmConfiguration *config);
 void error_check(int r, const char *msg);
@@ -18,21 +18,36 @@ int main(int argc, char **argv)
 
     ros::init(argc, argv, "rcm_node");
     ros::NodeHandle nh("~");
-    
+
     // parameters
     int rate;
     std::string dev_path;
     std::string network_nodes;
 
+    // interface
+    rcmIfType rcmIf;
+
     nh.param("rate", rate, 30);
-    nh.param("dev_path", dev_path, std::string("/dev/ttyACM0"));
     nh.param("network_nodes", network_nodes, std::string(""));
 
+    if (nh.getParam("ip_address", dev_path))
+    {
+       rcmIf = rcmIfIp;
+    }
+    else if (nh.getParam("serial_dev", dev_path))
+    {
+      rcmIf = rcmIfSerial;
+    }
+    else
+    {
+      rcmIf = rcmIfUsb;
+    }
+
     // publisher
-    ros::Publisher range_pub = nh.advertise<pulson_ros::RangeArray>("/ranges", 100);
+    ros::Publisher range_pub = nh.advertise<pulson_ros::RangeArray>("ranges", 100);
 
     // initialization
-    init(dev_path);
+    init(rcmIf, dev_path);
 
     // extract node IDs from parameter
     std::vector<std::string> node_ids;
@@ -94,24 +109,24 @@ int main(int argc, char **argv)
 
         // publish
         range_pub.publish(range_array);
-        
+
         // block
         loop_rate.sleep();
     }
 
     // cleanup
     rcmIfClose();
-    
+
 }
 
-void init(std::string dev_path)
+void init(rcmIfType rcmIf, std::string dev_path)
 {
     int r;
 
     // initialize interface
-    r = rcmIfInit(rcmIfUsb, (char*) dev_path.c_str());
+    r = rcmIfInit(rcmIf, (char*) dev_path.c_str());
     error_check(r, "Initialization Failed");
-    
+
     // make sure RCM is awake
     r = rcmSleepModeSet(RCM_SLEEP_MODE_ACTIVE);
     error_check(r, "Timeout waiting for sleep mode set");
@@ -166,7 +181,7 @@ void print_status(rcmMsg_GetStatusInfoConfirm *statusInfo)
 
 }
 
-void print_configuration(rcmConfiguration *config) 
+void print_configuration(rcmConfiguration *config)
 {
     char buf[1024];
     sprintf(buf, "\n\tConfiguration:\n");
@@ -191,4 +206,3 @@ void error_check(int r, char const *msg)
     }
 
 }
-
