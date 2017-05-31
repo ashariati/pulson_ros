@@ -46,14 +46,14 @@
   <build_depend>geometry_msgs</build_depend>
   <build_depend>cmake_modules</build_depend>
   <build_depend>message_generation</build_depend>
-  <build_depend>yaml-cpp</build_depend>
+  <build_depend>yaml_cpp</build_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>
   <run_depend>cmake_modules</run_depend>
   <run_depend>message_runtime</run_depend>
-  <run_depend>yaml-cpp</run_depend>
+  <run_depend>yaml_cpp</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
