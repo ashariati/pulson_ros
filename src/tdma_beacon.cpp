@@ -14,7 +14,7 @@
 #include <sstream>
 #include <vector>
 
-void init(int node_id);
+void init(rcmIfType rcmIf, std::string dev_path);
 void run();
 void set_rcm_config(rcmConfiguration *rcmConfig, int pii);
 void set_range_net_config(rnConfiguration *rnConfig);
@@ -36,10 +36,35 @@ int main(int argc, char **argv)
     // parameters
     int node_id;
     int pii;
+    std::string dev_path;
     std::string slot_map_file;
     nh.param("node_id", node_id, 100);
     nh.param("pulse_integration_index", pii, 4);
     nh.param("slot_map_file", slot_map_file, std::string(""));
+
+    //interface
+    rcmIfType rcmIf;
+
+    if (nh.getParam("ip_address", dev_path))
+    {
+       rcmIf = rcmIfIp;
+    }
+    else if (nh.getParam("serial_dev", dev_path))
+    {
+      rcmIf = rcmIfSerial;
+    }
+    else if (nh.getParam("dev_path", dev_path))
+    {
+      rcmIf = rcmIfUsb;
+    }
+    else
+    {
+      std::stringstream ss;
+      ss << node_id;
+      dev_path = ss.str();
+
+      rcmIf = rcmIfUsb;
+    }
 
     // configurations
     rcmConfiguration rcmConfig;
@@ -52,7 +77,7 @@ int main(int argc, char **argv)
     print_slotmap(&rnTdmaSlotMap);
 
     // initialize
-    init(node_id);
+    init(rcmIf, dev_path);
 
     // configure
     set_rcm_config(&rcmConfig, pii);
@@ -68,20 +93,14 @@ int main(int argc, char **argv)
 
 }
 
-void init(int node_id)
+void init(rcmIfType rcmIf, std::string dev_path)
 {
     int r;
 
     ROS_INFO("Initialization...");
 
-    // convert node_id to char*
-    std::string n;
-    std::stringstream ss;
-    ss << node_id;
-    n = ss.str();
-
     // initialize interface
-    r = rcmIfInit(rcmIfUsb, (char*) n.c_str());
+    r = rcmIfInit(rcmIf, (char*) dev_path.c_str());
     error_check(r, "Initialization failed");
 
     // put in idle mode during configuration
@@ -120,7 +139,7 @@ void set_rcm_config(rcmConfiguration *rcmConfig, int pii)
     rcmConfig->flags |= RCM_FLAG_ENABLE_ECHO_LAST_RANGE; // Set ELR
     rcmConfig->flags &= ~RCM_SEND_SCANINFO_PKTS; // Clear Scans
     rcmConfig->flags &= ~RCM_SEND_FULL_SCANINFO_PKTS; // Clear Full Scans
-    rcmConfig->flags |= RCM_DISABLE_CRE_RANGES; 
+    rcmConfig->flags |= RCM_DISABLE_CRE_RANGES;
 
     // set persist flag
     rcmConfig->persistFlag |= RCRM_PERSIST_ALL;
@@ -144,13 +163,13 @@ void set_range_net_config(rnConfiguration *rnConfig)
     rnConfig->maxNeighborAgeMs = 4 * 1000;
 	rnConfig->autosendNeighborDbUpdateIntervalMs = 65535;
 
-	rnConfig->rnFlags &= ~RN_CONFIG_FLAG_DO_NOT_RANGE_TO_ME; 
+	rnConfig->rnFlags &= ~RN_CONFIG_FLAG_DO_NOT_RANGE_TO_ME;
     rnConfig->rnFlags &= ~RN_CONFIG_FLAG_NEIGHBOR_DATABASE_FILTERED_RANGE;
     rnConfig->rnFlags |= RN_CONFIG_FLAG_ECHO_LAST_RANGE;
 
     rnConfig->networkSyncMode = RN_NETWORK_SYNC_MODE_TDMA;
 
-    rnConfig->autosendType &= ~RN_AUTOSEND_RANGEINFO_FLAGS_MASK; // reset 
+    rnConfig->autosendType &= ~RN_AUTOSEND_RANGEINFO_FLAGS_MASK; // reset
     rnConfig->autosendType &= ~RN_AUTOSEND_NEIGHBOR_DATABASE_FLAGS_MASK; // reset
 
     r = rnConfigSet(rnConfig);
@@ -184,7 +203,7 @@ void set_slotmap_config(rnMsg_SetTDMASlotmapRequest *rnTdmaSlotMap)
     // Set Slotmap metadata
     rnTdmaSlotMap->msgType = RN_SET_TDMA_SLOTMAP_REQUEST;
     rnTdmaSlotMap->slotmapFlags &= ~RN_TDMA_SLOTMAP_FLAG_MODIFY;
-    rnTdmaSlotMap->persistFlag |= RCRM_PERSIST_ALL; 
+    rnTdmaSlotMap->persistFlag |= RCRM_PERSIST_ALL;
     r = rnTdmaSlotMapSet(rnTdmaSlotMap);
     error_check(r, "Time out waiting for rnTdmaSlotMapSet confirm");
 
@@ -263,7 +282,7 @@ void print_status(rcrmMsg_GetStatusInfoConfirm *statusInfo)
 
 }
 
-void print_rcm_configuration(rcmConfiguration *rcmConfig) 
+void print_rcm_configuration(rcmConfiguration *rcmConfig)
 {
     char buf[1024];
     sprintf(buf, "\n\tRCM Configuration:\n");
@@ -283,9 +302,9 @@ void print_rn_configuration(rnConfiguration *rnConfig)
 {
     char buf[1024];
     sprintf(buf, "\n\tRN Configuration: \n");
-    sprintf(buf, "%s\t\tMax Neighbor Age Ms: %d\n", buf, 
+    sprintf(buf, "%s\t\tMax Neighbor Age Ms: %d\n", buf,
             rnConfig->maxNeighborAgeMs);
-    sprintf(buf, "%s\t\tAuto Send NDB Update Interval Ms: %d\n", buf, 
+    sprintf(buf, "%s\t\tAuto Send NDB Update Interval Ms: %d\n", buf,
             rnConfig->autosendNeighborDbUpdateIntervalMs);
     sprintf(buf, "%s\t\tRN Flags: 0x%X\n", buf, rnConfig->rnFlags);
     sprintf(buf, "%s\t\tNetwork Sync Mode: %d\n", buf, rnConfig->networkSyncMode);

@@ -7,14 +7,14 @@
 #include <pulson_ros/RangeNetNDBEntry.h>
 #include <pulson_ros/RangeNetNDB.h>
 
-void init(int node_id, 
-        rcmConfiguration *rcmConfig, 
+void init(rcmIfType &rcmIf, std::string &dev_path,
+        rcmConfiguration *rcmConfig,
         rnConfiguration *rnConfig,
         rnALOHAConfiguration *rnAlohaConfig);
 void cleanup();
 void configure_radio(
         int rate,
-        rcmConfiguration *rcmConfig, 
+        rcmConfiguration *rcmConfig,
         rnConfiguration *rnConfig,
         rnALOHAConfiguration *rnAlohaConfig);
 void print_status(rcrmMsg_GetStatusInfoConfirm *statusInfo);
@@ -32,27 +32,53 @@ int main(int argc, char **argv)
     // parameters
     int rate;
     int node_id;
+    std::string dev_path;
+
+    // interface
+    rcmIfType rcmIf;
+
     nh.param("rate", rate, 10);
     nh.param("node_id", node_id, 100);
 
+    if (nh.getParam("ip_address", dev_path))
+    {
+       rcmIf = rcmIfIp;
+    }
+    else if (nh.getParam("serial_dev", dev_path))
+    {
+      rcmIf = rcmIfSerial;
+    }
+    else if (nh.getParam("dev_path", dev_path))
+    {
+      rcmIf = rcmIfUsb;
+    }
+    else
+    {
+      std::stringstream ss;
+      ss << node_id;
+      dev_path = ss.str();
+
+      rcmIf = rcmIfUsb;
+    }
+
     // publisher
-    ros::Publisher database_pub = nh.advertise<pulson_ros::RangeNetNDB>("/range_net_db", 100);
+    ros::Publisher database_pub = nh.advertise<pulson_ros::RangeNetNDB>("range_net_db", 100);
 
     // configurations
     rcmConfiguration rcmConfig;
     rnConfiguration rnConfig;
-	rnALOHAConfiguration rnAlohaConfig;
+	  rnALOHAConfiguration rnAlohaConfig;
 
     // initialize
-    init(node_id, &rcmConfig, &rnConfig, &rnAlohaConfig);
+    init(rcmIf, dev_path, &rcmConfig, &rnConfig, &rnAlohaConfig);
 
     // configure radio
     configure_radio(rate, &rcmConfig, &rnConfig, &rnAlohaConfig);
 
     // P4xx messages datastructures
     rcmMsg_FullRangeInfo rangeInfo;
-	rnMsg_GetFullNeighborDatabaseConfirm ndbInfo;
-    
+	  rnMsg_GetFullNeighborDatabaseConfirm ndbInfo;
+
     int r;
 
     ros::Rate loop_rate(rate);
@@ -101,8 +127,8 @@ int main(int argc, char **argv)
 
 }
 
-void init(int node_id, 
-        rcmConfiguration *rcmConfig, 
+void init(rcmIfType &rcmIf, std::string &dev_path,
+        rcmConfiguration *rcmConfig,
         rnConfiguration *rnConfig,
         rnALOHAConfiguration *rnAlohaConfig)
 {
@@ -110,12 +136,8 @@ void init(int node_id,
 
     ROS_INFO("Initialization...");
 
-    // convert node_id to char*
-    char n[4];
-    sprintf(n, "%d", node_id);
-
     // initialize interface
-    r = rcmIfInit(rcmIfUsb, n);
+    r = rcmIfInit(rcmIf, (char*) dev_path.c_str());
     error_check(r, "Initialization failed");
 
     // put in idle mode during configuration
@@ -125,7 +147,7 @@ void init(int node_id,
     // set to RCM mode
     r = rcmOpModeSet(RCRM_OPMODE_RCM);
     error_check(r, "Time out waiting for opmode set");
-    
+
     // execute Built-In Test
     int status;
     r = rcmBit(&status);
@@ -166,7 +188,7 @@ void cleanup()
     // return to RCM mode
     r = rcmOpModeSet(RCRM_OPMODE_RCM);
     error_check(r, "Time out waiting for opmode set");
-    
+
     // Flush any pending messages
     rcmIfFlush();
 
@@ -177,7 +199,7 @@ void cleanup()
 
 void configure_radio(
         int rate,
-        rcmConfiguration *rcmConfig, 
+        rcmConfiguration *rcmConfig,
         rnConfiguration *rnConfig,
         rnALOHAConfiguration *rnAlohaConfig)
 {
@@ -186,28 +208,28 @@ void configure_radio(
     int r;
 
     // Set RCM configuration
-	rcmConfig->flags &= ~RCM_FLAG_ENABLE_ECHO_LAST_RANGE; // Set ELR
-	rcmConfig->flags &= ~RCM_SEND_SCANINFO_PKTS; // Clear Scans
-	rcmConfig->flags &= ~RCM_SEND_FULL_SCANINFO_PKTS; // Clear Full Scans
-	rcmConfig->flags |= RCM_DISABLE_CRE_RANGES; // Disable CRE Ranges (note: setting the bit disables the sending of CREs)
+	  rcmConfig->flags &= ~RCM_FLAG_ENABLE_ECHO_LAST_RANGE; // Set ELR
+	  rcmConfig->flags &= ~RCM_SEND_SCANINFO_PKTS; // Clear Scans
+	  rcmConfig->flags &= ~RCM_SEND_FULL_SCANINFO_PKTS; // Clear Full Scans
+	  rcmConfig->flags |= RCM_DISABLE_CRE_RANGES; // Disable CRE Ranges (note: setting the bit disables the sending of CREs)
     r = rcmConfigSet(rcmConfig);
     error_check(r, "Time out waiting for rcmConfig confirm");
     print_rcm_configuration(rcmConfig);
 
-	// Moving on to RangeNet configuration
-    rnConfig->autosendType &= ~RN_AUTOSEND_RANGEINFO_FLAGS_MASK; // clear 
+	  // Moving on to RangeNet configuration
+    rnConfig->autosendType &= ~RN_AUTOSEND_RANGEINFO_FLAGS_MASK; // clear
     rnConfig->autosendType &= ~RN_AUTOSEND_NEIGHBOR_DATABASE_FLAGS_MASK; // clear
     rnConfig->autosendType |= RN_AUTOSEND_NEIGHBOR_DATABASE_FULL;
-	rnConfig->rnFlags &= ~RN_CONFIG_FLAG_DO_NOT_RANGE_TO_ME; // Ensure Do Not Range To Me flag is not set
-	rnConfig->autosendNeighborDbUpdateIntervalMs = (int) ((1 / rate) * 1000);
+	  rnConfig->rnFlags &= ~RN_CONFIG_FLAG_DO_NOT_RANGE_TO_ME; // Ensure Do Not Range To Me flag is not set
+	  rnConfig->autosendNeighborDbUpdateIntervalMs = (int) ((1 / rate) * 1000);
     r = rnConfigSet(rnConfig);
     error_check(r, "Time out waiting for rnConfig confirm");
     print_rn_configuration(rnConfig);
 
-	// Finally set up ALOHA configuration
-	rnAlohaConfig->flags &= 0;
-	rnAlohaConfig->flags |= RN_ALOHA_CONFIG_FLAG_USE_ACC;
-	rnAlohaConfig->maxRequestDataSize = 0; // Let's not have any data this time around
+    // Finally set up ALOHA configuration
+    rnAlohaConfig->flags &= 0;
+    rnAlohaConfig->flags |= RN_ALOHA_CONFIG_FLAG_USE_ACC;
+    rnAlohaConfig->maxRequestDataSize = 0; // Let's not have any data this time around
     rnAlohaConfig->maxResponseDataSize = 0;
     r = rnAlohaConfigSet(rnAlohaConfig);
     error_check(r, "Time out waiting for rnAlohaConfig confirm");
@@ -252,7 +274,7 @@ void print_status(rcrmMsg_GetStatusInfoConfirm *statusInfo)
 
 }
 
-void print_rcm_configuration(rcmConfiguration *rcmConfig) 
+void print_rcm_configuration(rcmConfiguration *rcmConfig)
 {
     char buf[1024];
     sprintf(buf, "\n\tRCM Configuration:\n");
@@ -272,9 +294,9 @@ void print_rn_configuration(rnConfiguration *rnConfig)
 {
     char buf[1024];
     sprintf(buf, "\n\tRN Configuration: \n");
-    sprintf(buf, "%s\t\tMax Neighbor Age Ms: %d\n", buf, 
+    sprintf(buf, "%s\t\tMax Neighbor Age Ms: %d\n", buf,
             rnConfig->maxNeighborAgeMs);
-    sprintf(buf, "%s\t\tAuto Send NDB Update Interval Ms: %d\n", buf, 
+    sprintf(buf, "%s\t\tAuto Send NDB Update Interval Ms: %d\n", buf,
             rnConfig->autosendNeighborDbUpdateIntervalMs);
     sprintf(buf, "%s\t\tRN Flags: 0x%X\n", buf, rnConfig->rnFlags);
     sprintf(buf, "%s\t\tNetwork Sync Mode: %d\n", buf, rnConfig->networkSyncMode);
