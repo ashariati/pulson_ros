@@ -6,6 +6,9 @@
           <param name="pulse_integration_index" value="5" />
           <param name="node_id" value="101" />
           <param name="slot_map_file" value="$(find pulson_ros)/config/mast_slotmap.yaml" />
+	  <param name="ip_address" value="0" />
+	  <param name="serial_dev" value="" />
+          <param name="dev_path" value="" />
       </node>
     </group>
 
