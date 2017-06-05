@@ -20,7 +20,7 @@
     antenna_mode: 0         # 0-A, 1-B, 2-TXA/RXB, 3-TXB/RXA
     channel: 4              # 0-default, [0-10] NOTE: Can't share in same slot
     requester_id: 102       # node ID of the requester
-    responder_id: 103       # node ID of the responder
+    responder_id: 100       # node ID of the responder
     duration: 0             # duration of slot uS; 0-default
 -
     type: 1                 # 0-invalid, 1-range slot, 2-requester out
@@ -30,5 +30,5 @@
     antenna_mode: 0         # 0-A, 1-B, 2-TXA/RXB, 3-TXB/RXA
     channel: 4              # 0-default, [0-10] NOTE: Can't share in same slot
     requester_id: 101       # node ID of the requester
-    responder_id: 103       # node ID of the responder
+    responder_id: 100       # node ID of the responder
     duration: 0             # duration of slot uS; 0-default
