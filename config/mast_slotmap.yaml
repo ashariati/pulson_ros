@@ -14,7 +14,7 @@
     duration: 0             # duration of slot uS; 0-default
 -
     type: 1                 # 0-invalid, 1-range slot, 2-requester out
-    number: 0               # slot position
+    number: 1               # slot position
     flags: 0                # Conflicting documenation... leave set 0
     integration_index: 5    # 7-default, [4-9] valid
     antenna_mode: 0         # 0-A, 1-B, 2-TXA/RXB, 3-TXB/RXA
@@ -24,7 +24,7 @@
     duration: 0             # duration of slot uS; 0-default
 -
     type: 1                 # 0-invalid, 1-range slot, 2-requester out
-    number: 0               # slot position
+    number: 2               # slot position
     flags: 0                # Conflicting documenation... leave set 0
     integration_index: 5    # 7-default, [4-9] valid
     antenna_mode: 0         # 0-A, 1-B, 2-TXA/RXB, 3-TXB/RXA
