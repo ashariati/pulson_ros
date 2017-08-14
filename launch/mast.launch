@@ -1,9 +1,8 @@
 <launch>
 
     <arg name="node_id"/>
-    <arg name="robot_id"/>
 
-    <node pkg="pulson_ros" name="tdma_node_$(arg robot_id)" type="tdma_node" output="screen">
+    <node pkg="pulson_ros" name="tdma_node_$(arg node_id)" type="tdma_node" output="screen">
         <param name="pulse_integration_index" value="5" />
         <param name="node_id" value="$(arg node_id)" />
         <param name="slot_map_file" value="$(find pulson_ros)/config/mast_slotmap.yaml" />
