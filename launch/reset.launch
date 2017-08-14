@@ -1,8 +1,10 @@
 <launch>
 
+    <arg name="node_id"/>
+
     <node pkg="pulson_ros" name="reset" type="reset" output="screen">
-        <param name="node_id" value="104" />
-        <param name="dev_path" value="/dev/ttyACM0" />
+        <param name="node_id" value="$(arg node_id)" />
+        <param name="dev_path" value="/dev/ttyACM1" />
     </node>
 
 </launch>
