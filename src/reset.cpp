@@ -5,6 +5,7 @@
 
 #include <pulson_ros/P4xx/RCM/rcmIf.h>
 #include <pulson_ros/P4xx/RCM/rcm.h>
+#include <pulson_ros/P4xx/RCM/hostInterfaceCommon.h>
 #include <pulson_ros/RangeArray.h>
 #include <pulson_ros/RangeMeasurement.h>
 
@@ -54,7 +55,7 @@ int main(int argc, char **argv)
     // get configuration from RCM
     rcmConfiguration config;
     r = rcmConfigGet(&config);
-    error_check(r, "Timeout watiing for configuration");
+    error_check(r, "Timeout waiting for configuration");
     print_configuration(&config);
 
     // default configuration
@@ -64,9 +65,8 @@ int main(int argc, char **argv)
     config.electricalDelayPsA = 0;
     config.electricalDelayPsB = 0;
     config.flags = 0;
-    config.flags |= RCM_DISABLE_CRE_RANGES;
-    config.txGain = 63;
-    config.persistFlag = 2;
+    config.txGain = RCM_TXGAIN_MAX;
+    config.persistFlag = RCM_PERSIST_ALL;
 
     r = rcmConfigSet(&config);
     error_check(r, "Time out waiting for rcmConfig confirm");

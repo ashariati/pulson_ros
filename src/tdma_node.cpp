@@ -164,8 +164,8 @@ void set_rcm_config(rcmConfiguration *rcmConfig, int pii)
 	rcmConfig->flags &= ~RCM_FLAG_SEND_SMALL_RANGE_INFOS;
 
     // set persist flag
-    // rcmConfig->persistFlag = RCRM_PERSIST_NONE;
-    rcmConfig->persistFlag = RCRM_PERSIST_ALL;
+    rcmConfig->persistFlag = RCRM_PERSIST_NONE;
+    // rcmConfig->persistFlag = RCRM_PERSIST_ALL;
 
     // transmission power
     rcmConfig->txGain = RCRM_TXGAIN_MAX;
