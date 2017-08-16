@@ -152,13 +152,23 @@ void set_rcm_config(rcmConfiguration *rcmConfig, int pii)
     // Set RCM configuration
     rcmConfig->integrationIndex = pii;
 
-	rcmConfig->flags |= RCM_FLAG_ENABLE_ECHO_LAST_RANGE; // Set ELR
-	rcmConfig->flags &= ~RCM_SEND_SCANINFO_PKTS; // Clear Scans
-	rcmConfig->flags &= ~RCM_SEND_FULL_SCANINFO_PKTS; // Clear Full Scans
-	rcmConfig->flags |= RCM_DISABLE_CRE_RANGES;
+    // Set flags
+	rcmConfig->flags &= ~RCM_SEND_SCANINFO_PKTS;
+	rcmConfig->flags &= ~RCM_SEND_FULL_SCANINFO_PKTS;
+	rcmConfig->flags &= ~RCM_DISABLE_FAN;
+	rcmConfig->flags &= ~RCM_SEND_SCAN_WITH_DATA;
+	rcmConfig->flags &= ~RCM_DISABLE_CRE_RANGES;
+	rcmConfig->flags &= ~RCM_USE_SINGLE_SIDED_CCI_CHECK;
+	rcmConfig->flags &= ~RCM_FLAG_LOS_NLOS_MISMATCH_AS_CCI;
+	rcmConfig->flags |= RCM_FLAG_ENABLE_ECHO_LAST_RANGE;
+	rcmConfig->flags &= ~RCM_FLAG_SEND_SMALL_RANGE_INFOS;
 
     // set persist flag
-    rcmConfig->persistFlag |= RCRM_PERSIST_ALL;
+    // rcmConfig->persistFlag = RCRM_PERSIST_NONE;
+    rcmConfig->persistFlag = RCRM_PERSIST_ALL;
+
+    // transmission power
+    rcmConfig->txGain = RCRM_TXGAIN_MAX;
 
     r = rcmConfigSet(rcmConfig);
     error_check(r, "Time out waiting for rcmConfig confirm");
@@ -179,15 +189,20 @@ void set_range_net_config(rnConfiguration *rnConfig)
     rnConfig->maxNeighborAgeMs = 4 * 1000;
 	rnConfig->autosendNeighborDbUpdateIntervalMs = 65535;
 
+    // Set rn flags
 	rnConfig->rnFlags &= ~RN_CONFIG_FLAG_DO_NOT_RANGE_TO_ME; 
     rnConfig->rnFlags &= ~RN_CONFIG_FLAG_NEIGHBOR_DATABASE_FILTERED_RANGE;
     rnConfig->rnFlags |= RN_CONFIG_FLAG_ECHO_LAST_RANGE;
+    rnConfig->rnFlags &= ~RN_CONFIG_FLAG_ENABLE_TIMING_INFOS;
 
+    // Set mode
     rnConfig->networkSyncMode = RN_NETWORK_SYNC_MODE_TDMA;
 
-    rnConfig->autosendType &= ~RN_AUTOSEND_RANGEINFO_FLAGS_MASK; // reset 
+    // Set audosend preferences
+    rnConfig->autosendType &= ~RN_AUTOSEND_RANGEINFO_FLAGS_MASK;
+    rnConfig->autosendType &= ~RN_AUTOSEND_NEIGHBOR_DATABASE_FLAGS_MASK;
     rnConfig->autosendType |= RN_AUTOSEND_RANGEINFO_SUCCESSFUL;
-    rnConfig->autosendType &= ~RN_AUTOSEND_NEIGHBOR_DATABASE_FLAGS_MASK; // reset
+    rnConfig->autosendType |= RN_AUTOSEND_NEIGHBOR_DATABASE_NONE;
 
     r = rnConfigSet(rnConfig);
     error_check(r, "Time out waiting for rnConfig confirm");

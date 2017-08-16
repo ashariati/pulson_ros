@@ -550,6 +550,9 @@ int rcmInfoWithEchoGet(rcmMsg_FullRangeInfo *rangeInfo,
                 // Ignore data info messages
 				// printf("\nReceived RCM_DATA_INFO. Ignoring...\n");
                 break;
+            case RCM_SCAN_INFO:
+                // do stuff if you want
+                break;
             case RCM_ECHOED_RANGE_INFO:
                 // copy message to caller's struct
                 memcpy(echoedInfo, &infoMsgs.echoedInfo, sizeof(*echoedInfo));
@@ -564,6 +567,12 @@ int rcmInfoWithEchoGet(rcmMsg_FullRangeInfo *rangeInfo,
                 echoedInfo->ledFlags = ntohs(echoedInfo->ledFlags);
                 echoedInfo->timestamp = ntohl(echoedInfo->timestamp);
 
+                break;
+            case RCM_SMALL_RANGE_INFO:
+                break;
+
+            case RN_TIMING_INFO:
+                // do stuff if you want
                 break;
 			case RN_FULL_NEIGHBOR_DATABASE_INFO:
 			case RN_GET_FULL_NEIGHBOR_DATABASE_CONFIRM:
@@ -593,6 +602,9 @@ int rcmInfoWithEchoGet(rcmMsg_FullRangeInfo *rangeInfo,
 				}
 				retVal = FULLNDB;
 				break;
+            case RN_SMALL_NEIGHBOR_DATABASE_INFO:
+                // do stuff if you want
+                break;
 			default:
 				printf("\nReceived Unknown Message Type: 0x%X\n", ntohs(infoMsgs.rangeInfo.msgType));
 				break;
