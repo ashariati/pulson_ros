@@ -16,8 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-find_package(Eigen3 REQUIRED)
-find_package(yaml-cpp REQUIRED)
+find_package(Yaml-cpp REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -112,7 +111,7 @@ catkin_package(
     INCLUDE_DIRS include
     # LIBRARIES pulson_ros
     CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs cmake_modules message_runtime
-    DEPENDS Eigen3 yaml-cpp
+    # DEPENDS system_lib
     )
 
 ###########
@@ -125,7 +124,6 @@ catkin_package(
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
-    ${Eigen3_INCLUDE_DIRS}
     ${YAML_CPP_INCLUDE_DIR}
     )
 
