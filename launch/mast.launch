@@ -1,12 +1,11 @@
 <launch>
 
-    <group ns="robot156">
+    <arg name="node_id" />
 
-      <node pkg="pulson_ros" name="tdma_node" type="tdma_node" output="screen">
-          <param name="pulse_integration_index" value="5" />
-          <param name="node_id" value="101" />
-          <param name="slot_map_file" value="$(find pulson_ros)/config/mast_slotmap.yaml" />
-      </node>
-    </group>
+    <node pkg="pulson_ros" name="tdma_node" type="tdma_node" output="screen">
+        <param name="node_id" value="$(arg node_id)" />
+        <param name="pulse_integration_index" value="7" />
+        <param name="slot_map_file" value="$(find pulson_ros)/config/mast_slotmap.yaml" />
+    </node>
 
 </launch>
