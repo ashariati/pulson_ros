@@ -1,11 +1,11 @@
 <launch>
-
-    <arg name="node_id" />
+  
+    <arg name="node_id"/>
 
     <node pkg="pulson_ros" name="tdma_node" type="tdma_node" output="screen">
-        <param name="node_id" value="$(arg node_id)" />
         <param name="pulse_integration_index" value="7" />
-        <param name="slot_map_file" value="$(find pulson_ros)/config/mast_slotmap.yaml" />
+        <param name="node_id" value="$(arg node_id)" />
+        <param name="slot_map_file" value="/home/odroid/catkin_ws/src/pulson_ros/config/mast_slotmap.yaml" />
     </node>
 
 </launch>
