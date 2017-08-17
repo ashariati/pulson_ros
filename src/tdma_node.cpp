@@ -181,7 +181,8 @@ void set_range_net_config(rnConfiguration *rnConfig)
 	rnConfig->autosendNeighborDbUpdateIntervalMs = 65535;
 
     // Set rn flags
-    rnConfig->rnFlags = RN_CONFIG_FLAG_ECHO_LAST_RANGE;
+    rnConfig->rnFlags &= ~RN_CONFIG_FLAG_MASK;
+    rnConfig->rnFlags |= RN_CONFIG_FLAG_ECHO_LAST_RANGE;
 
     // Set mode
     rnConfig->networkSyncMode = RN_NETWORK_SYNC_MODE_TDMA;

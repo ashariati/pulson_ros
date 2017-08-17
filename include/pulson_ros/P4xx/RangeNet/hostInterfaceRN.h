@@ -196,6 +196,8 @@
 
 // RangeNet config flags
 
+// RangeNet config mask
+#define RN_CONFIG_FLAG_MASK                                 (15)
 // Sets a flag that tells neighbors to NOT range to this node
 #define RN_CONFIG_FLAG_DO_NOT_RANGE_TO_ME					(1 << 1)
 // Selects precision vs. filtered ranges
